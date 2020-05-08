@@ -17,7 +17,7 @@
       git:
         dest: "{{ repo_dir }}"
         repo: "{{ repo_url }}"
-        version: "{{ pr_branch|default('master') }}"
+        version: "{{ pr_branch|default(omit) }}"
         refspec: "{{ pr_refspec|default(omit) }}"
         force: true
       register: git_clone
