@@ -1309,11 +1309,12 @@ class PodmanDefaults:
 
 
 class PodmanContainerDiff:
-    def __init__(self, module, info, podman_version):
+    def __init__(self, module, info, image_info, podman_version):
         self.module = module
         self.version = podman_version
         self.default_dict = None
         self.info = yaml.safe_load(json.dumps(info).lower())
+        self.image_info = yaml.safe_load(json.dumps(image_info).lower())
         self.params = self.defaultize()
         self.diff = {'before': {}, 'after': {}}
         self.non_idempotent = {
@@ -1656,10 +1657,8 @@ class PodmanContainerDiff:
         return self._diff_update_and_compare('tty', before, after)
 
     def diffparam_user(self):
-        before = self.info['config']['user']
-        after = self.params['user']
-        if after is None:
-            after = before
+        before = self.info['config']['user'] or ''
+        after = self.params['user'] or self.image_info['user'] or ''
         return self._diff_update_and_compare('user', before, after)
 
     def diffparam_uts(self):
@@ -1776,7 +1775,11 @@ class PodmanContainer:
     @property
     def different(self):
         """Check if container is different."""
-        diffcheck = PodmanContainerDiff(self.module, self.info, self.version)
+        diffcheck = PodmanContainerDiff(
+            self.module,
+            self.info,
+            self.get_image_info(),
+            self.version)
         is_different = diffcheck.is_different()
         diffs = diffcheck.diff
         if self.module._diff and is_different and diffs['before'] and diffs['after']:
@@ -1803,6 +1806,13 @@ class PodmanContainer:
         # pylint: disable=unused-variable
         rc, out, err = self.module.run_command(
             [self.module.params['executable'], b'container', b'inspect', self.name])
+        return json.loads(out)[0] if rc == 0 else {}
+
+    def get_image_info(self):
+        """Inspect container image and gather info about it."""
+        # pylint: disable=unused-variable
+        rc, out, err = self.module.run_command(
+            [self.module.params['executable'], b'image', b'inspect', self.module.params['image']])
         return json.loads(out)[0] if rc == 0 else {}
 
     def _get_podman_version(self):
