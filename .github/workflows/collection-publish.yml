@@ -28,7 +28,8 @@ jobs:
 
       - name: Install Ansible ${{ matrix.ansible-version }}
         run: >-
-          python -m pip install --user '${{ matrix.ansible-version }}' -r contrib/publish-requirements.txt
+          python -m pip install --user -r contrib/publish-requirements.txt;
+          python -m pip install --user -U --force '${{ matrix.ansible-version }}'
 
       - name: Generate a version from tag
         run: >-

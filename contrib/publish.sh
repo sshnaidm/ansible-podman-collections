@@ -25,5 +25,5 @@ if echo $output | grep ERROR: ; then
     exit 1
 fi
 
-echo "Running: ansible-galaxy collection publish --token HIDDEN $COLLECTION_P"
-ansible-galaxy collection publish --token $API_GALAXY_TOKEN $COLLECTION_P
+echo "Running: ansible-galaxy collection publish --api-key HIDDEN $COLLECTION_P"
+ansible-galaxy collection publish --api-key $API_GALAXY_TOKEN $COLLECTION_P
