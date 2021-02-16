@@ -6,7 +6,7 @@ Version:        1.4.1
 Release:        1%{?dist}
 Summary:        Podman Ansible collection for Podman containers
 
-License:        GPLv3+ and Python
+License:        GPLv3+
 URL:            %{ansible_collection_url}
 Source:         https://github.com/containers/ansible-podman-collections/archive/%{version}.tar.gz
 
@@ -20,8 +20,8 @@ BuildArch:      noarch
 %prep
 %autosetup -n ansible-podman-collections-%{version}
 sed -i -e 's/version:.*/version: %{version}/' galaxy.yml
-find -type f ! -executable -type f -name '*.py' -print -exec sed -i -e '1{\@^#!.*@d}' '{}' +
-rm -vr ci/ contrib/ tests/ ./galaxy.yml.in
+find -type f ! -executable -name '*.py' -print -exec sed -i -e '1{\@^#!.*@d}' '{}' +
+rm -vr changelogs/ ci/ contrib/ tests/ ./galaxy.yml.in .github/ .gitignore
 
 %build
 %ansible_collection_build
@@ -35,6 +35,6 @@ rm -vr ci/ contrib/ tests/ ./galaxy.yml.in
 %{ansible_collection_files}
 
 %changelog
-* Tue Feb 09 2021 Sagi Shnaidman <sshnaidm@redhat.com> - 1.4.1
+* Tue Feb 09 2021 Sagi Shnaidman <sshnaidm@redhat.com> - 1.4.1-1
 - Initial package
 
