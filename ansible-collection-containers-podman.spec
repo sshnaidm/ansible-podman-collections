@@ -37,4 +37,3 @@ rm -vr changelogs/ ci/ contrib/ tests/ ./galaxy.yml.in .github/ .gitignore
 %changelog
 * Tue Feb 09 2021 Sagi Shnaidman <sshnaidm@redhat.com> - 1.4.1-1
 - Initial package
-
