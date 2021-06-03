@@ -19,6 +19,13 @@ except ImportError:
         raise_from(ImportError('To use this plugin or module with ansible-core'
                                ' < 2.11, you need to use Python < 3.12 with '
                                'distutils.version present'), exc)
+try:
+    import requests
+    from .podman_api import PodmanAPIClient
+    HAS_REQUESTS = True
+except ImportError:
+    PodmanAPIClient = object
+    HAS_REQUESTS = False
 
 
 def run_podman_command(module, executable='podman', args=None, expected_rc=0, ignore_errors=False):
@@ -231,3 +238,15 @@ def normalize_signal(signal_name_or_number):
         if signal_name not in _signal_map:
             raise RuntimeError("Unknown signal '{0}'".format(signal_name_or_number))
         return str(_signal_map[signal_name])
+
+
+class PodmanAPI:
+    def __init__(self, module, module_params):
+        if module_params.get('podman_socket') and not HAS_REQUESTS:
+            module.fail_json(
+                msg="Requests module is not installed while socket was provided!")
+        self.client = PodmanAPIClient(module_params.get('podman_socket'))
+        try:
+            self.client.version()
+        except Exception as api_error:
+            module.fail_json(msg="Podman API error: %s" % str(api_error))
