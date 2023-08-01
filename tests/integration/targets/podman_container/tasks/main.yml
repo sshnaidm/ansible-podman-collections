@@ -596,6 +596,34 @@
           pod_prefix: whocares
           separator: zzzz
           container_prefix: contain
+      register: system0
+
+    - name: Check if the result is changed
+      assert:
+        that:
+          - system0 is changed
+
+    - name: Remove the systemd unit file
+      ansible.builtin.file:
+        path: /tmp/containzzzzcontainer1.service
+        state: absent
+
+    - name: Run container with systemd generation parameters again
+      containers.podman.podman_container:
+        executable: "{{ test_executable | default('podman') }}"
+        name: container1
+        image: alpine
+        state: started
+        command: sleep 20m
+        generate_systemd:
+          path: /tmp/
+          restart_policy: always
+          time: 120
+          no_header: true
+          names: true
+          pod_prefix: whocares
+          separator: zzzz
+          container_prefix: contain
       register: system1
 
     - name: Check service file presents
@@ -606,6 +634,7 @@
     - name: Check that container has correct systemd output
       assert:
         that:
+          - system1 is changed
           - system1.podman_systemd.keys() | list | first == 'containzzzzcontainer1'
           - system1.podman_systemd.values() | list | length > 0
           - service_file.stat.exists | bool
@@ -768,7 +797,6 @@
         success_msg: Rootfs container test passed!
 
   always:
-
     - name: Remove container
       containers.podman.podman_container:
         executable: "{{ test_executable | default('podman') }}"
