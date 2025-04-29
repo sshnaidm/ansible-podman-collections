@@ -3,9 +3,10 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 module: podman_system_info
 author:
   - Johnson Lien (@johnsonlien)
@@ -20,9 +21,9 @@ options:
         machine running C(podman)
     default: 'podman'
     type: str
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 - name: Get Podman system information
   containers.podman.podman_system_info:
 
@@ -32,9 +33,9 @@ EXAMPLES = r'''
 - name: Printing Podman System info
   debug:
     msg: "{{ podman_info['podman_system_info'] }}"
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 host:
   arch: amd64
   buildahVersion: 1.23.0
@@ -178,14 +179,15 @@ version:
   GoVersion: go1.16.6
   OsArch: linux/amd64
   Version: 4.0.0
-'''
+"""
 
 import json
 
 from ansible.module_utils.basic import AnsibleModule
 
+
 def get_podman_system_info(module, executable):
-    command = [executable, 'system', 'info']
+    command = [executable, "system", "info"]
     rc, out, err = module.run_command(command)
     out = out.strip()
     if out:
@@ -194,15 +196,16 @@ def get_podman_system_info(module, executable):
     module.log(msg="Unable to get podman system info: %s" % err)
     return json.dumps([])
 
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            executable=dict(type='str', default='podman'),
+            executable=dict(type="str", default="podman"),
         ),
         supports_check_mode=True,
     )
 
-    executable = module.get_bin_path(module.params['executable'], required=True)
+    executable = module.get_bin_path(module.params["executable"], required=True)
 
     results = get_podman_system_info(module, executable)
 
@@ -213,5 +216,6 @@ def main():
 
     module.exit_json(**results)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
